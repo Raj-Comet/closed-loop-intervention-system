@@ -1,0 +1,56 @@
+.normal-state-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.normal-state-card {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 600px;
+  width: 100%;
+}
+
+.normal-state-card h1 {
+  margin: 0 0 12px 0;
+  font-size: 32px;
+  color: #333;
+  text-align: center;
+}
+
+.subtitle {
+  text-align: center;
+  color: #666;
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.normal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.info-box {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  border-left: 4px solid #667eea;
+}
+
+.info-box h3 {
+  margin-top: 0;
+  color: #667eea;
+  font-size: 18px;
+}
+
+.info-box p {
+  margin-bottom: 0;
+  color: #555;
+  font-size: 14px;
+}

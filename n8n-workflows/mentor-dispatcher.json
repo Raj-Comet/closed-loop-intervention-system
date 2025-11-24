@@ -1,0 +1,156 @@
+{
+  "name": "Mentor Intervention Dispatcher",
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        250,
+        300
+      ],
+      "webhookId": "intervention-trigger"
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://{{ $env.BACKEND_URL }}/api/student/{{ $json.student_id }}"
+      },
+      "name": "Fetch Student Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "email": "{{ $env.MENTOR_EMAIL }}",
+        "subject": "⚠️ Student Intervention Required: {{ $json.student_name }}",
+        "htmlMessage": "=<h2>Student Intervention Alert</h2>\n<p><strong>Student:</strong> {{ $json.student_name }}</p>\n<p><strong>Email:</strong> {{ $json.student_email }}</p>\n<p><strong>Quiz Score:</strong> {{ $json.quiz_score }}/10</p>\n<p><strong>Focus Time:</strong> {{ $json.focus_minutes }} minutes</p>\n<hr>\n<p>This student's performance indicates they need intervention.</p>\n<p>Please review their case and assign a remedial task.</p>\n<br>\n<a href=\"{{ $env.APPROVAL_LINK }}?intervention_id={{ $json.intervention_id }}\" style=\"background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;\">APPROVE & ASSIGN TASK</a>"
+      },
+      "name": "Send Email Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 1,
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "name": "Wait for Approval",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env.BACKEND_URL }}/api/assign-intervention",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParametersJson": "={\"intervention_id\": \"{{ $json.intervention_id }}\", \"remedial_task\": \"{{ $json.remedial_task }}\", \"mentor_id\": \"{{ $env.MENTOR_ID }}\", \"n8n_execution_id\": \"{{ $execution.id }}\"}"
+      },
+      "name": "Call Backend - Assign Intervention",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1050,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://{{ $env.SLACK_WEBHOOK_URL }}",
+        "sendBody": true,
+        "bodyParametersJson": "={\"text\": \"✅ Intervention Assigned for {{ $json.student_name }}\", \"blocks\": [{\"type\": \"section\", \"text\": {\"type\": \"mrkdwn\", \"text\": \"*Intervention Assigned*\\n*Student:* {{ $json.student_name }}\\n*Task:* {{ $json.remedial_task }}\"}}]}"
+      },
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1250,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Student Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Student Data": {
+      "main": [
+        [
+          {
+            "node": "Send Email Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email Notification": {
+      "main": [
+        [
+          {
+            "node": "Wait for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Approval": {
+      "main": [
+        [
+          {
+            "node": "Call Backend - Assign Intervention",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Backend - Assign Intervention": {
+      "main": [
+        [
+          {
+            "node": "Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "staticData": null,
+  "id": "1",
+  "tags": []
+}
