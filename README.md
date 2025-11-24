@@ -1,5 +1,8 @@
 # Closed-Loop Intervention System - Complete Guide
 
+**Author**: [@Raj-Comet](https://github.com/Raj-Comet)  
+**Repository**: https://github.com/Raj-Comet/closed-loop-intervention-system
+
 > Building a **Product-First Engineering** solution that detects student struggles in real-time and automates intelligent mentorship.
 
 ## 📖 Table of Contents
